@@ -2,6 +2,7 @@ package aoc2023
 
 import org.junit.Test
 import util.Util
+import kotlin.math.pow
 
 class TestDay08 {
 
@@ -50,7 +51,6 @@ class TestDay08 {
         var rOrLIndex = 0
 
 
-
         val counts = mutableMapOf<String, Int>()
 
         for (start in starts) {
@@ -66,13 +66,48 @@ class TestDay08 {
             }
             counts[start.id] = steps
         }
-        print("Counts: $counts")
+        println("Counts: $counts")
 
-        // val ppcm = getPPCM(counts.values)
+        val ppcm = getPPCM(counts.values)
+
+        println("PPCM: $ppcm")
     }
 
-    private fun getPPCM(values: MutableCollection<Int>): Any {
-        TODO("Not yet implemented")
+    private fun getPPCM(values: Collection<Int>): Any {
+        val allDecomp = values
+            .map {
+                getPrimeDecomp(it)
+            }
+            .map {
+                println(it)
+                it
+            }
+        return allDecomp.map { it.map { factor -> factor.key to factor.value } }
+            .flatten()
+            .groupBy { it.first }
+            .map { it.key to it.value.maxByOrNull { x -> x.second } }
+            .map { it.first.toDouble().pow(it.second!!.second.toDouble()).toLong() }
+            .map {
+                println(it)
+                it
+            }
+            .reduce { acc, d -> acc * d }
+    }
+
+    private fun getPrimeDecomp(n: Int): Map<Int, Int> {
+        val decomp = mutableMapOf<Int, Int>()
+        var number = n
+        for (i in 2 until n) {
+            decomp[i] = 0
+            while (number % i == 0) {
+                decomp[i] = decomp[i]!! + 1
+                number /= i
+            }
+        }
+        if (number > 2) {
+            decomp[number] = decomp[number]!! + 1
+        }
+        return decomp.filter { it.value != 0 }
     }
 
 
